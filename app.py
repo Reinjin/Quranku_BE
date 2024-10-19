@@ -1,6 +1,7 @@
 # app.py
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 from models import db
 from blueprint.auth import auth
 from blueprint.user import user
@@ -12,6 +13,7 @@ from flask_migrate import Migrate
 from models import TokenBlocklist
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 app.config.from_object(Config)
 
 db.init_app(app)
