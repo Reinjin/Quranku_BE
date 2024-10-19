@@ -1,0 +1,23 @@
+networks:
+  quranku_network:
+    name: quranku_network
+    driver: bridge
+
+volumes:
+  mysql-data:
+
+services:
+  mysql:
+    image: mysql
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 178292219
+      MYSQL_DATABASE: quranku_app
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - quranku_network
+

@@ -1,0 +1,3 @@
+.env
+/api_test
+__pycache__/

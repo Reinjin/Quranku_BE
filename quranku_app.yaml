@@ -1,0 +1,221 @@
+openapi: 3.0.0
+info:
+  title: Quranku API
+  description: API for Quranku application, including authentication, profile information, prayer time calculation, and user learning history.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5003
+    description: Local server
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - full_name
+                - email
+                - password
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input or missing required fields
+        '500':
+          description: Server error during registration
+
+  /auth/login:
+    post:
+      summary: User login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Login successful, returns a JWT token
+        '400':
+          description: Invalid email or password format
+        '401':
+          description: Bad email or password
+        '500':
+          description: Server error during login
+
+  /auth/logout:
+    post:
+      summary: User logout
+      security:
+        - bearerAuth: []
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: User logged out successfully
+        '400':
+          description: Error in token
+        '500':
+          description: Server error during logout
+
+  /user/profile:
+    get:
+      summary: Get user profile
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      responses:
+        '200':
+          description: Returns user profile data (full name and email)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  full_name:
+                    type: string
+                  email:
+                    type: string
+        '400':
+          description: User identity not found
+        '404':
+          description: User not found
+        '500':
+          description: Server error while fetching profile
+
+  /utils/prayer_times:
+    post:
+      summary: Get prayer times based on user location
+      security:
+        - bearerAuth: []
+      tags:
+        - Utils
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+                date:
+                  type: string
+              required:
+                - latitude
+                - longitude
+                - date
+      responses:
+        '200':
+          description: Returns prayer times (Fajr, Dhuhr, Asr, Maghrib, Isha)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Fajr:
+                    type: string
+                  Dhuhr:
+                    type: string
+                  Asr:
+                    type: string
+                  Maghrib:
+                    type: string
+                  Isha:
+                    type: string
+        '400':
+          description: Latitude or longitude missing
+        '500':
+          description: Server error while fetching prayer times
+
+  /ml/history_belajar:
+    get:
+      summary: Get user learning history
+      security:
+        - bearerAuth: []
+      tags:
+        - ML
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number for pagination
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: Number of items per page
+      responses:
+        '200':
+          description: Returns paginated user learning history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_items:
+                    type: integer
+                  total_pages:
+                    type: integer
+                  current_page:
+                    type: integer
+                  per_page:
+                    type: integer
+                  history_belajar:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        huruf:
+                          type: string
+                        tanggal:
+                          type: string
+                          format: date
+                        waktu:
+                          type: string
+                          format: time
+                        kondisi:
+                          type: string
+                          enum: [fathah, kasroh, dhommah]
+                        hasil:
+                          type: string
+                          enum: [kurang, benar]
+        '400':
+          description: Invalid page or per_page parameter
+        '500':
+          description: Server error while fetching history
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
