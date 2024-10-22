@@ -1,3 +1,4 @@
 .env
+migrations/
 /api_test
 __pycache__/
