@@ -44,7 +44,7 @@ app.register_blueprint(ml, url_prefix='/ml')
 
 @app.route('/')
 def home():
-    return "API is running"
+    return "Hello, This is Quranku app" 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5003)
+if __name__ == '__main__': 
+    app.run(port=5003)
