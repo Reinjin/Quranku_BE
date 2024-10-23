@@ -2,3 +2,4 @@
 migrations/
 /api_test
 __pycache__/
+model.keras

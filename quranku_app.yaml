@@ -212,6 +212,101 @@ paths:
           description: Invalid page or per_page parameter
         '500':
           description: Server error while fetching history
+  
+  /ml/predict:
+    post:
+      summary: Prediksi huruf berdasarkan file audio yang diunggah
+      security:
+        - bearerAuth: []
+      tags : 
+        - ML
+      description: Endpoint ini menerima file audio dengan format .wav dan melakukan prediksi huruf berdasarkan model yang telah dilatih.
+      operationId: predictAudio
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File audio dalam format .wav
+                  example: aa.wav
+                huruf:
+                  type: string
+                  description: Huruf hijaiyah yang diprediksi
+                  example: "و"
+                kondisi:
+                  type: string
+                  description: Kondisi suara (fathah, kasroh, dommah)
+                  enum:
+                    - fathah
+                    - kasroh
+                    - dommah
+                  example: fathah
+                hasil_prediksi_diinginkan:
+                  type: string
+                  description: Hasil prediksi yang diinginkan (nama kelas)
+                  example: 79. waw_fathah
+                tanggal:
+                  type: string
+                  format: date
+                  description: Tanggal saat prediksi dilakukan (format YYYY-MM-DD)
+                  example: 2024-10-21
+                waktu:
+                  type: string
+                  format: time
+                  description: Waktu saat prediksi dilakukan (format HH:MM:SS)
+                  example: 12:30:00
+              required:
+                - file
+                - huruf
+                - kondisi
+                - hasil_prediksi_diinginkan
+                - tanggal
+                - waktu
+      responses:
+        '200':
+          description: Prediksi berhasil dilakukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  predicted_class:
+                    type: string
+                    description: Kelas prediksi yang dihasilkan
+                    example: 79. waw_fathah
+                  result:
+                    type: string
+                    description: Hasil dari prediksi (benar/kurang)
+                    example: benar
+        '400':
+          description: Kesalahan input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    description: Pesan kesalahan
+                    example: File type not allowed. Only .wav files are accepted
+        '500':
+          description: Kesalahan server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    description: Pesan kesalahan
+                    example: Error during prediction
+
+
 
 components:
   securitySchemes:
