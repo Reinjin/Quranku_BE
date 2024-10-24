@@ -1,0 +1,14 @@
+README.md
+quranku_app.yaml
+generate_faker.py
+example.env
+docker.sh
+docker-compose.yaml
+.gitignore
+.env
+migrations/
+__pycache__/
+/api_test
+
+
+.git/

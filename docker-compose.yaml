@@ -21,3 +21,16 @@ services:
     networks:
       - quranku_network
 
+  quranku_app:
+    image: reinjin/quranku_app:latest
+    container_name: quranku_app
+    environment:
+      SECRET_KEY: your_secret_key
+      JWT_SECRET_KEY: your_JWT_secretkey
+      DATABASE_URL: your_database_connection_string  # example Format : mysql+pymysql://root:178292219@mysql:3306/quranku_app
+    ports:
+      - "5003:5003"
+    restart: always
+    networks:
+      - quranku_network
+
