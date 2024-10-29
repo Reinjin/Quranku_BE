@@ -27,8 +27,6 @@ def register():
         if not password:
             return jsonify({"msg": "Password is required"}), 400
 
-        email_lower = email.lower()  # Simpan email dalam lowercase
-
         # Validasi email
         email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         if not email or not re.match(email_regex, email):
@@ -41,8 +39,10 @@ def register():
         if not password or not re.match(password_regex, password):
             return jsonify({"msg": "Password must contain at least one uppercase letter, one number, and be 8-90 characters long"}), 400
 
+        email_lower = email.lower()  # Simpan email dalam lowercase
+
         # Cek apakah email sudah terdaftar
-        if User.query.filter_by(email=email).first():
+        if User.query.filter_by(email=email_lower).first():
             return jsonify({"msg": "Email already registered"}), 400
 
         # Menambahkan user baru
