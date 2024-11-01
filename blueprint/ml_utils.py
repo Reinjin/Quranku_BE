@@ -38,7 +38,7 @@ def load_and_preprocess_audio(y, sr, max_time_steps=128, n_mels=128, n_fft=2048,
     return mel_spec_db
 
 # Fungsi prediksi
-def predict_audio_class(y, sr, model_path='model.keras'):
+def predict_audio_class(y, sr, model_path='model/model.keras'):
     # Ubah path relatif menjadi path absolut
     current_directory = os.path.dirname(os.path.abspath(__file__))
     model_file_path = os.path.join(current_directory, model_path)
@@ -54,9 +54,39 @@ def predict_audio_class(y, sr, model_path='model.keras'):
 
     # Lakukan prediksi
     predictions = model.predict(processed_audio)
+    print(predictions[0][0])
     
     predicted_class_index = np.argmax(predictions, axis=-1)[0]
     
     predicted_class_name = class_names[predicted_class_index]
     
     return predicted_class_name
+
+def predict_audio_biner(y, sr, model_name) :
+
+    model_name = 'model_' + model_name + '.keras'
+
+    # Ubah path relatif menjadi path absolut
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    model_dir = os.path.join(current_directory, 'model')
+    model_file_path = os.path.join(model_dir, model_name)
+
+    # Muat model
+    if not os.path.exists(model_file_path):
+        raise FileNotFoundError(f"File not found: {model_file_path}. Please ensure the file is an accessible `.keras` zip file.")
+    
+    model = load_model(model_file_path)
+
+    # Preprocessing audio
+    processed_audio = load_and_preprocess_audio(y, sr)
+
+    # Lakukan prediksi
+    prediction = model.predict(processed_audio)
+
+    # Hasil prediksi (misalnya: 0 atau 1 untuk klasifikasi biner)
+    prediction_result = int(np.round(prediction[0][0]))  # Membulatkan prediksi ke 0 atau 1
+    confidence = prediction[0][0] * 100  # Konversi confidence menjadi persentase
+
+    print(f"Confidence : {confidence:.2f}%")
+
+    return prediction_result

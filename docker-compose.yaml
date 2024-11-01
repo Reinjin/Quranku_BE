@@ -14,8 +14,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 178292219
       MYSQL_DATABASE: quranku_app
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -27,7 +27,7 @@ services:
     environment:
       SECRET_KEY: your_secret_key
       JWT_SECRET_KEY: your_JWT_secretkey
-      DATABASE_URL: your_database_connection_string  # example Format : mysql+pymysql://root:178292219@localhost:3306/quranku_app
+      DATABASE_URL: mysql+pymysql://root:178292219@mysql_container:3306/quranku_app
     ports:
       - "5003:5003"
     restart: always
