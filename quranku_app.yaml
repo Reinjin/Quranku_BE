@@ -217,12 +217,12 @@ paths:
   
   /ml/predict:
     post:
-      summary: Prediksi huruf berdasarkan file audio yang diunggah
+      summary: Prediksi kelas audio
+      description: Melakukan prediksi kelas audio dari file yang diunggah dan menyimpan hasilnya di riwayat belajar.
       security:
         - bearerAuth: []
       tags : 
         - ML
-      description: Endpoint ini menerima file audio dengan format .wav dan melakukan prediksi huruf berdasarkan model yang telah dilatih.
       operationId: predictAudio
       requestBody:
         required: true
@@ -235,58 +235,40 @@ paths:
                   type: string
                   format: binary
                   description: File audio dalam format .wav
-                  example: aa.wav
                 huruf:
                   type: string
-                  description: Huruf hijaiyah yang diprediksi
-                  example: "و"
+                  description: Huruf hijaiyah dalam bahasa Arab (contoh "ا", "ب", dll.)
+                  enum: ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي']
                 kondisi:
                   type: string
-                  description: Kondisi suara (fathah, kasroh, dommah)
-                  enum:
-                    - fathah
-                    - kasroh
-                    - dommah
-                  example: fathah
+                  description: Kondisi suara
+                  enum: [fathah, kasroh, dommah]
                 hasil_prediksi_diinginkan:
                   type: string
-                  description: Hasil prediksi yang diinginkan (nama kelas)
-                  example: 79. waw_fathah
+                  description: Kelas yang diinginkan dari prediksi
+                  enum: ['01. alif_fathah', '02. alif_kasroh', '03. alif_dommah', '04. ba_fathah', '05. ba_kasroh', '06. ba_dommah', '07. ta_fathah', '08. ta_kasroh', '09. ta_dommah', '10. tsa_fathah', '11. tsa_kasroh', '12. tsa_dommah', '13. jim_fathah', '14. jim_kasroh', '15. jim_dommah', '16. hah_fathah', '17. hah_kasroh', '18. hah_dommah', '19. kha_fathah', '20. kha_kasroh', '21. kha_dommah', '22. dal_fathah', '23. dal_kasroh', '24. dal_dommah', '25. dzal_fathah', '26. dzal_kasroh', '27. dzal_dommah', '28. ra_fathah', '29. ra_kasroh', '30. ra_dommah', '31. zay_fathah', '32. zay_kasroh', '33. zay_dommah', '34. sin_fathah', '35. sin_kasroh', '36. sin_dommah', '37. shin_fathah', '38. shin_kasroh', '39. shin_dommah', '40. sad_fathah', '41. sad_kasroh', '42. sad_dommah', '43. dad_fathah', '44. dad_kasroh', '45. dad_dommah', '46. tah_fathah', '47. tah_kasroh', '48. tah_dommah', '49. zah_fathah', '50. zah_kasroh', '51. zah_dommah', '52. ain_fathah', '53. ain_kasroh', '54. ain_dommah', '55. ghaiin_fathah', '56. ghaiin_kasroh', '57. ghaiin_dommah', '58. fa_fathah', '59. fa_kasroh', '60. fa_dommah', '61. qaf_fathah', '62. qaf_kasroh', '63. qaf_dommah', '64. kaf_fathah', '65. kaf_kasroh', '66. kaf_dommah', '67. lam_fathah', '68. lam_kasroh', '69. lam_dommah', '70. mim_fathah', '71. mim_kasroh', '72. mim_dommah', '73. nun_fathah', '74. nun_kasroh', '75. nun_dommah', '76. Ha_fathah', '77. Ha_kasroh', '78. Ha_dommah', '79. waw_fathah', '80. waw_kasroh', '81. waw_dommah', '82. ya_fathah', '83. ya_kasroh', '84. ya_dommah']
                 tanggal:
                   type: string
                   format: date
-                  description: Tanggal saat prediksi dilakukan (format YYYY-MM-DD)
-                  example: 2024-10-21
+                  description: Tanggal dari ponsel pengguna (format YYYY-MM-DD)
                 waktu:
                   type: string
                   format: time
-                  description: Waktu saat prediksi dilakukan (format HH:MM:SS)
-                  example: 12:30:00
-              required:
-                - file
-                - huruf
-                - kondisi
-                - hasil_prediksi_diinginkan
-                - tanggal
-                - waktu
+                  description: Waktu dari ponsel pengguna (format HH:MM:SS)
       responses:
-        '200':
-          description: Prediksi berhasil dilakukan
+        200:
+          description: Hasil prediksi
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  predicted_class:
-                    type: string
-                    description: Kelas prediksi yang dihasilkan
-                    example: 79. waw_fathah
                   result:
                     type: string
-                    description: Hasil dari prediksi (benar/kurang)
-                    example: benar
-        '400':
-          description: Kesalahan input
+                    enum: [benar, kurang]
+                    description: Hasil prediksi, benar atau kurang
+        400:
+          description: Request tidak valid atau file terlalu besar
           content:
             application/json:
               schema:
@@ -294,10 +276,9 @@ paths:
                 properties:
                   msg:
                     type: string
-                    description: Pesan kesalahan
-                    example: File type not allowed. Only .wav files are accepted
-        '500':
-          description: Kesalahan server
+                    description: Pesan error
+        500:
+          description: Terjadi kesalahan pada server
           content:
             application/json:
               schema:
@@ -305,8 +286,79 @@ paths:
                 properties:
                   msg:
                     type: string
-                    description: Pesan kesalahan
-                    example: Error during prediction
+                    description: Pesan error
+
+  /ml/predict_biner:
+    post:
+      summary: Prediksi biner audio
+      description: Melakukan prediksi biner dari file audio dan menyimpan hasilnya di riwayat belajar.
+      tags:
+        - ML
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File audio dalam format .wav
+                huruf:
+                  type: string
+                  description: Huruf hijaiyah dalam bahasa Arab (contoh "ا", "ب", dll.)
+                  enum: ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي']
+                kondisi:
+                  type: string
+                  description: Kondisi suara
+                  enum: [fathah, kasroh, dommah]
+                hasil_prediksi_diinginkan:
+                  type: string
+                  description: Kelas yang diinginkan dari prediksi
+                  enum: ['01. alif_fathah', '02. alif_kasroh', '03. alif_dommah', '04. ba_fathah', '05. ba_kasroh', '06. ba_dommah', '07. ta_fathah', '08. ta_kasroh', '09. ta_dommah', '10. tsa_fathah', '11. tsa_kasroh', '12. tsa_dommah', '13. jim_fathah', '14. jim_kasroh', '15. jim_dommah', '16. hah_fathah', '17. hah_kasroh', '18. hah_dommah', '19. kha_fathah', '20. kha_kasroh', '21. kha_dommah', '22. dal_fathah', '23. dal_kasroh', '24. dal_dommah', '25. dzal_fathah', '26. dzal_kasroh', '27. dzal_dommah', '28. ra_fathah', '29. ra_kasroh', '30. ra_dommah', '31. zay_fathah', '32. zay_kasroh', '33. zay_dommah', '34. sin_fathah', '35. sin_kasroh', '36. sin_dommah', '37. shin_fathah', '38. shin_kasroh', '39. shin_dommah', '40. sad_fathah', '41. sad_kasroh', '42. sad_dommah', '43. dad_fathah', '44. dad_kasroh', '45. dad_dommah', '46. tah_fathah', '47. tah_kasroh', '48. tah_dommah', '49. zah_fathah', '50. zah_kasroh', '51. zah_dommah', '52. ain_fathah', '53. ain_kasroh', '54. ain_dommah', '55. ghaiin_fathah', '56. ghaiin_kasroh', '57. ghaiin_dommah', '58. fa_fathah', '59. fa_kasroh', '60. fa_dommah', '61. qaf_fathah', '62. qaf_kasroh', '63. qaf_dommah', '64. kaf_fathah', '65. kaf_kasroh', '66. kaf_dommah', '67. lam_fathah', '68. lam_kasroh', '69. lam_dommah', '70. mim_fathah', '71. mim_kasroh', '72. mim_dommah', '73. nun_fathah', '74. nun_kasroh', '75. nun_dommah', '76. Ha_fathah', '77. Ha_kasroh', '78. Ha_dommah', '79. waw_fathah', '80. waw_kasroh', '81. waw_dommah', '82. ya_fathah', '83. ya_kasroh', '84. ya_dommah']
+                tanggal:
+                  type: string
+                  format: date
+                  description: Tanggal dari ponsel pengguna (format YYYY-MM-DD)
+                waktu:
+                  type: string
+                  format: time
+                  description: Waktu dari ponsel pengguna (format HH:MM:SS)
+      responses:
+        200:
+          description: Hasil prediksi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [benar, kurang]
+                    description: Hasil prediksi, benar atau kurang
+        400:
+          description: Request tidak valid atau file terlalu besar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    description: Pesan error
+        500:
+          description: Terjadi kesalahan pada server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    description: Pesan error
 
 
 
