@@ -47,4 +47,4 @@ def home():
     return "Hello, This is Quranku app <br> Ini hanya aplikasi Backend Kamu tidak bisa melihatnya melalui browser" 
 
 if __name__ == '__main__': 
-    app.run(port=5003, debug=True)
+    app.run(port=5003)
