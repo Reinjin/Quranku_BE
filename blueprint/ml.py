@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import io
 import librosa
-from .ml_utils import predict_audio_class, predict_audio_biner  # Import fungsi prediksi dari ml_utils
+from .ml_utils import predict_audio_class, predict_audio_biner, predict_audio_svm  # Import fungsi prediksi dari ml_utils
 from models import HistoryBelajar, db
 from datetime import datetime
 
@@ -247,6 +247,89 @@ def predict_biner():
 
         # Lakukan prediksi menggunakan fungsi predict_audio_class
         predicted_class = predict_audio_biner(y, sr, hasil_prediksi_diinginkan)
+
+        # Bandingkan hasil prediksi dengan hasil prediksi yang diinginkan
+        is_correct = "benar" if predicted_class == 1 else "kurang"
+
+        # Simpan data history prediksi ke database menggunakan waktu dan tanggal dari client
+        history = HistoryBelajar(
+            huruf=huruf,
+            tanggal=tanggal_obj,
+            waktu=waktu_obj,
+            kondisi=kondisi,
+            hasil=is_correct,
+            user_id=user_id
+        )
+
+        db.session.add(history)
+        db.session.commit()
+
+        # Kembalikan hasil prediksi dan apakah benar atau salah
+        return jsonify({
+            "result": is_correct
+        }), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"msg": "Error during prediction"}), 500
+    
+
+# Endpoint untuk melakukan prediksi audio tanpa menyimpan file
+@ml.route('/predict_svm', methods=['POST'])
+@jwt_required()  # Memerlukan JWT
+def predict_svm():
+    try:
+        # Dapatkan id user dari JWT
+        user_id = get_jwt_identity()
+
+        # Validasi input dari request
+        if 'file' not in request.files:
+            return jsonify({"msg": "No file part in the request"}), 400
+        
+        file = request.files['file']
+        
+        # Cek apakah file telah diunggah
+        if file.filename == '':
+            return jsonify({"msg": "No file selected"}), 400
+        
+        # Cek ekstensi dan ukuran file
+        if not allowed_file(file.filename):
+            return jsonify({"msg": "File type not allowed. Only .wav files are accepted"}), 400
+        
+        if not file_size_okay(file):
+            return jsonify({"msg": "File is too large. Maximum size is 5MB"}), 400
+        
+        # Ambil data tambahan dari request untuk validasi
+        huruf = request.form.get('huruf')
+        kondisi = request.form.get('kondisi')  # fathah, kasroh, dhommah
+        hasil_prediksi_diinginkan = request.form.get('hasil_prediksi_diinginkan')  # nama kelasnya
+        tanggal = request.form.get('tanggal')  # tanggal dari ponsel user (YYYY-MM-DD)
+        waktu = request.form.get('waktu')  # waktu dari ponsel user (HH:MM:SS)
+
+        if not all([huruf, kondisi, hasil_prediksi_diinginkan, tanggal, waktu]):
+            return jsonify({"msg": "Missing huruf, kondisi, hasil_prediksi_diinginkan, tanggal, or waktu"}), 400
+
+        # Validasi huruf, kondisi, dan hasil_prediksi
+        valid, error_msg = validate_input(huruf, kondisi, hasil_prediksi_diinginkan)
+        if not valid:
+            return jsonify({"msg": error_msg}), 400
+
+        # Validasi format tanggal dan waktu
+        try:
+            tanggal_obj = datetime.strptime(tanggal, '%Y-%m-%d').date()
+            waktu_obj = datetime.strptime(waktu, '%H:%M:%S').time()
+        except ValueError:
+            return jsonify({"msg": "Invalid date or time format. Use YYYY-MM-DD for date and HH:MM:SS for time"}), 400
+
+        # Menggunakan Librosa untuk membaca audio dari file stream (tanpa menyimpannya)
+        audio_data = file.read()  # Membaca file sebagai bytes
+        audio_stream = io.BytesIO(audio_data)  # Ubah ke BytesIO stream
+
+        # Muat file audio menggunakan librosa
+        y, sr = librosa.load(audio_stream, sr=None)  # sr=None menjaga sample rate asli
+
+        # Lakukan prediksi menggunakan fungsi predict_audio_class
+        predicted_class = predict_audio_svm(y, sr, hasil_prediksi_diinginkan)
 
         # Bandingkan hasil prediksi dengan hasil prediksi yang diinginkan
         is_correct = "benar" if predicted_class == 1 else "kurang"

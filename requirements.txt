@@ -14,5 +14,6 @@ prayer-times-calculator==0.0.12
 werkzeug==3.0.1
 PyMySQL==1.1.1
 cryptography==42.0.5
+joblib==1.3.2
 
 #tambahkan Faker versi 30.6.0 jika ingin migrate data dummy

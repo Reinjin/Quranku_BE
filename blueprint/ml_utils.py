@@ -2,6 +2,7 @@ import os
 import numpy as np
 import librosa
 from tensorflow.keras.models import load_model
+import joblib
 
 # Daftar nama kelas
 class_names = ['01. alif_fathah', '02. alif_kasroh', '03. alif_dommah', '04. ba_fathah', '05. ba_kasroh', '06. ba_dommah',
@@ -20,7 +21,7 @@ class_names = ['01. alif_fathah', '02. alif_kasroh', '03. alif_dommah', '04. ba_
                '79. waw_fathah', '80. waw_kasroh', '81. waw_dommah', '82. ya_fathah', '83. ya_kasroh', '84. ya_dommah']
 
 # Fungsi untuk memproses file audio (dari stream numpy array)
-def load_and_preprocess_audio(y, sr, max_time_steps=128, n_mels=128, n_fft=2048, hop_length=512):
+def load_and_preprocess_audio(y, sr, max_time_steps=128, n_mels=128, n_fft=2048, hop_length=512, type="cnn"):
     # Ekstrak Mel Spectrogram
     mel_spec = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=n_fft, hop_length=hop_length, n_mels=n_mels)
     mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
@@ -35,7 +36,10 @@ def load_and_preprocess_audio(y, sr, max_time_steps=128, n_mels=128, n_fft=2048,
     # Menambahkan dimensi tambahan untuk input ke CNN
     mel_spec_db = mel_spec_db[np.newaxis, ..., np.newaxis]
     
-    return mel_spec_db
+    if type == "cnn":
+        return mel_spec_db
+    elif type == "svm":
+        return mel_spec_db.flatten()
 
 # Fungsi prediksi
 def predict_audio_class(y, sr, model_path='model/model.keras'):
@@ -90,3 +94,29 @@ def predict_audio_biner(y, sr, model_name) :
     print(f"Confidence : {confidence:.2f}%")
 
     return prediction_result
+
+
+def predict_audio_svm(y, sr, model_name) :
+
+    model_name = 'one_class_svm_' + model_name + '.joblib'
+
+    # Ubah path relatif menjadi path absolut
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    model_dir = os.path.join(current_directory, 'model')
+    model_file_path = os.path.join(model_dir, model_name)
+
+    # Muat model
+    if not os.path.exists(model_file_path):
+        raise FileNotFoundError(f"File not found: {model_file_path}. Please ensure the file is an accessible `.joblib` zip file.")
+    
+    model = joblib.load(model_file_path)
+
+    # Preprocessing audio
+    processed_audio = load_and_preprocess_audio(y, sr, type="svm")
+
+    # Lakukan prediksi
+    prediction = model.predict([processed_audio])
+
+    print(f"Prediction : {prediction}")
+
+    return prediction
