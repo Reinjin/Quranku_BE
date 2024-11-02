@@ -8,6 +8,8 @@ servers:
     description: Local server
   - url: https://seahorse-app-mjtgy.ondigitalocean.app
     description: DigitalOcean server
+  - url : https://ferret-top-macaque.ngrok-free.app
+    description: Ngrok server
 
 paths:
   /auth/register:
@@ -360,6 +362,80 @@ paths:
                     type: string
                     description: Pesan error
 
+  /ml/predict_svm:
+    post:
+      summary: "Melakukan prediksi suara menggunakan model SVM"
+      description: "Endpoint ini menerima file audio (format .wav) dan melakukan prediksi suara menggunakan model SVM."
+      tags:
+        - "ML"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "File audio dalam format .wav (maksimal 5MB)"
+                huruf:
+                  type: string
+                  description: "Huruf Hijaiyah yang diucapkan (dalam bahasa Arab)"
+                  enum: ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي']
+                kondisi:
+                  type: string
+                  description: "Kondisi suara (fathah, kasroh, atau dommah)"
+                  enum:
+                    - "fathah"
+                    - "kasroh"
+                    - "dommah"
+                hasil_prediksi_diinginkan:
+                  type: string
+                  description: "Nama kelas prediksi yang diinginkan"
+                  enum: ['01. alif_fathah', '02. alif_kasroh', '03. alif_dommah', '04. ba_fathah', '05. ba_kasroh', '06. ba_dommah', '07. ta_fathah', '08. ta_kasroh', '09. ta_dommah', '10. tsa_fathah', '11. tsa_kasroh', '12. tsa_dommah', '13. jim_fathah', '14. jim_kasroh', '15. jim_dommah', '16. hah_fathah', '17. hah_kasroh', '18. hah_dommah', '19. kha_fathah', '20. kha_kasroh', '21. kha_dommah', '22. dal_fathah', '23. dal_kasroh', '24. dal_dommah', '25. dzal_fathah', '26. dzal_kasroh', '27. dzal_dommah', '28. ra_fathah', '29. ra_kasroh', '30. ra_dommah', '31. zay_fathah', '32. zay_kasroh', '33. zay_dommah', '34. sin_fathah', '35. sin_kasroh', '36. sin_dommah', '37. shin_fathah', '38. shin_kasroh', '39. shin_dommah', '40. sad_fathah', '41. sad_kasroh', '42. sad_dommah', '43. dad_fathah', '44. dad_kasroh', '45. dad_dommah', '46. tah_fathah', '47. tah_kasroh', '48. tah_dommah', '49. zah_fathah', '50. zah_kasroh', '51. zah_dommah', '52. ain_fathah', '53. ain_kasroh', '54. ain_dommah', '55. ghaiin_fathah', '56. ghaiin_kasroh', '57. ghaiin_dommah', '58. fa_fathah', '59. fa_kasroh', '60. fa_dommah', '61. qaf_fathah', '62. qaf_kasroh', '63. qaf_dommah', '64. kaf_fathah', '65. kaf_kasroh', '66. kaf_dommah', '67. lam_fathah', '68. lam_kasroh', '69. lam_dommah', '70. mim_fathah', '71. mim_kasroh', '72. mim_dommah', '73. nun_fathah', '74. nun_kasroh', '75. nun_dommah', '76. Ha_fathah', '77. Ha_kasroh', '78. Ha_dommah', '79. waw_fathah', '80. waw_kasroh', '81. waw_dommah', '82. ya_fathah', '83. ya_kasroh', '84. ya_dommah']
+                tanggal:
+                  type: string
+                  format: date
+                  description: "Tanggal ketika suara direkam (format: YYYY-MM-DD)"
+                waktu:
+                  type: string
+                  format: time
+                  description: "Waktu ketika suara direkam (format: HH:MM:SS)"
+      responses:
+        '200':
+          description: "Hasil prediksi dan status (benar atau salah)"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: ["benar", "kurang"]
+                    description: "Status prediksi apakah benar atau salah"
+        '400':
+          description: "Kesalahan pada data permintaan atau format yang tidak valid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    description: "Pesan error"
+        '500':
+          description: "Kesalahan internal server"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    description: "Pesan error internal server"
 
 
 components:
