@@ -44,7 +44,7 @@ app.register_blueprint(ml, url_prefix='/ml')
 
 @app.route('/')
 def home():
-    return "Hello, This is Quranku app <br> Ini hanya aplikasi Backend Kamu tidak bisa melihatnya melalui browser" 
+    return "Hello, This is Quranku app <br> This is just BackEnd Application, you can access from mobile app" 
 
 if __name__ == '__main__': 
     app.run(port=5003)
