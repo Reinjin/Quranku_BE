@@ -24,4 +24,4 @@ https://hub.docker.com/r/reinjin/quranku_app
 
 Perintah untuk pull : 
 
-docker pull reinjin/quranku_app:<tagname>
+docker pull reinjin/quranku_app:v2.0
