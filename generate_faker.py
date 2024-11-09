@@ -39,7 +39,7 @@ def generate_fake_history_belajar():
 
     with app.app_context():
         # Membuat data faker untuk setiap user (id 1-10)
-        for user_id in range(11, 12):
+        for user_id in range(1, 12):
             for _ in range(100):  # Membuat 10 riwayat untuk setiap user
                 huruf = random.choice(huruf_list)  # Huruf acak
                 tanggal = fake.date_this_year()  # Tanggal acak dalam tahun ini
