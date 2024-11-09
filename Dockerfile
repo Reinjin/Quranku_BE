@@ -1,5 +1,5 @@
 # Tahap 1: Base image untuk build dependencies (Python 3.10.0)
-FROM python:3.10.0-slim as builder
+FROM python:3.10.0-slim AS builder
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
