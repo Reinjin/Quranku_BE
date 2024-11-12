@@ -12,7 +12,7 @@ def generate_fake_users(n):
         for _ in range(n):
             full_name = fake.name()
             email = fake.email()
-            password = "password123"
+            password = "Password123"
             user = User(full_name=full_name, email=email)
             user.set_password(password)
             db.session.add(user)
@@ -23,7 +23,7 @@ def generate_fake_users11(n=1):
         for _ in range(n):
             full_name = "Fawwaz Ijlal Muqsith"
             email = "fawwazijlalmuqsith@gmail.com"
-            password = "password123"
+            password = "Password123"
             user = User(full_name=full_name, email=email)
             user.set_password(password)
             db.session.add(user)
