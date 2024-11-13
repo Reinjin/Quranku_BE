@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from prayer_times_calculator import PrayerTimesCalculator
 from flask_jwt_extended import jwt_required
+from geopy.geocoders import Nominatim
 
 # Inisialisasi blueprint utils
 utils = Blueprint('utils', __name__)
@@ -32,9 +33,11 @@ def prayer_times():
         )
 
         times = ptc.fetch_prayer_times()
+        city = get_city_name(latitude, longitude)
 
         # Kembalikan 5 waktu sholat
         return jsonify({
+            "City": city,
             "Fajr": times['Fajr'],
             "Dhuhr": times['Dhuhr'],
             "Asr": times['Asr'],
@@ -44,3 +47,15 @@ def prayer_times():
     except Exception:
         # Menangani error yang tidak terduga
         return jsonify({"message": "An unexpected error occurred while fetching prayer times."}), 500
+
+
+def get_city_name(latitude, longitude):
+            geolocator = Nominatim(user_agent="quranku_app_be")
+            location = geolocator.reverse((latitude, longitude), exactly_one=True)
+            if location and 'city' in location.raw['address']:
+                return location.raw['address']['city']
+            elif location and 'town' in location.raw['address']:
+                return location.raw['address']['town']
+            elif location and 'village' in location.raw['address']:
+                return location.raw['address']['village']
+            return None
