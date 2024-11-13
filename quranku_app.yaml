@@ -144,6 +144,8 @@ paths:
               schema:
                 type: object
                 properties:
+                  City : 
+                    type : string
                   Fajr:
                     type: string
                   Dhuhr:
