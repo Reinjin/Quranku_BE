@@ -28,7 +28,7 @@ def get_history_belajar():
             return jsonify({"msg": "Per page number must be greater than 0"}), 400
 
         # Query history belajar sesuai dengan user_id
-        histories = HistoryBelajar.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page, error_out=False)
+        histories = HistoryBelajar.query.filter_by(user_id=user_id).order_by(HistoryBelajar.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
 
         # Ambil data untuk dikembalikan dalam format JSON
         history_list = []
