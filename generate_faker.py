@@ -34,7 +34,7 @@ def generate_fake_history_belajar():
     huruf_list = ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي']
 
     # Daftar kondisi dan hasil
-    kondisi_list = ['fathah', 'kasroh', 'dhommah']
+    kondisi_list = ['fathah', 'kasroh', 'dommah']
     hasil_list = ['kurang', 'benar']
 
     with app.app_context():

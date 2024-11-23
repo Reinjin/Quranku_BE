@@ -49,7 +49,7 @@ class HistoryBelajar(db.Model):
     waktu = db.Column(db.Time, nullable=False)
     
     # Kolom kondisi (fathah, kasroh, dhommah)
-    kondisi = db.Column(Enum('fathah', 'kasroh', 'dhommah', name='kondisi_enum'), nullable=False)
+    kondisi = db.Column(Enum('fathah', 'kasroh', 'dommah', name='kondisi_enum'), nullable=False)
     
     # Kolom hasil (kurang, benar)
     hasil = db.Column(Enum('kurang', 'benar', name='hasil_enum'), nullable=False)
