@@ -9,19 +9,20 @@ import requests
 utils = Blueprint('utils', __name__)
 
 # Endpoint untuk mendapatkan waktu sholat berdasarkan lokasi
-@utils.route('/prayer_times', methods=['POST'])
+@utils.route('/prayer_times', methods=['GET'])
 @jwt_required()
 def prayer_times():
     try:
-        data = request.get_json()
-
         # Ambil latitude, longitude, dan timezone dari input user
-        latitude = data.get('latitude')
-        longitude = data.get('longitude')
-        hari = data.get('date')
+        latitude = request.args.get('latitude')
+        longitude = request.args.get('longitude')
+        hari = request.args.get('date')
 
         if not latitude or not longitude or not hari:
             return jsonify({"message": "Please provide both latitude, longitude, and date."}), 400
+        
+        latitude = float(latitude)
+        longitude = float(longitude)
 
         # Get prayer times
         prayer_times = get_prayer_times(
@@ -44,18 +45,18 @@ def prayer_times():
         # Menangani error yang tidak terduga
         return jsonify({"message": "An unexpected error occurred while fetching prayer times."}), 500
 
-@utils.route('/city_location', methods=['POST'])
+@utils.route('/city_location', methods=['GET'])
 @jwt_required()
 def city_location():
     try:
-        data = request.get_json()
-
-        # Ambil latitude, longitude dari input user
-        latitude = data.get('latitude')
-        longitude = data.get('longitude')
+        latitude = request.args.get('latitude')
+        longitude = request.args.get('longitude')
 
         if not latitude or not longitude:
             return jsonify({"message": "Please provide both latitude and longitude."}), 400
+        
+        latitude = float(latitude)
+        longitude = float(longitude)
 
         city = get_location_info(latitude, longitude)
         
